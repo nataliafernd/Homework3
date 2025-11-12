@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width,initial-scale=1" />
+	<title>Age Calculator</title>
+	<style>
+		:root{
+			--bg:#f7fafc; --card:#ffffff; --accent:#2563eb; --muted:#6b7280; --radius:12px;
+			--max-width:800px;
+			--shadow: 0 6px 18px rgba(16,24,40,0.08);
+		}
+		*{box-sizing:border-box}
+		body{font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;margin:0;background:var(--bg);color:#0f172a;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:32px}
+		.wrap{width:100%;max-width:var(--max-width)}
+		header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+		header h1{font-size:1.25rem;margin:0}
+		.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:28px}
+		label{display:block;font-weight:600;margin-bottom:8px}
+		.muted{color:var(--muted);font-weight:400}
+		.form-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+		input[type="date"], input[type="text"]{padding:10px 12px;border-radius:8px;border:1px solid #e6edf3;background:#fff;min-width:220px}
+		button{background:var(--accent);color:#fff;border:0;padding:10px 14px;border-radius:8px;cursor:pointer;font-weight:600}
+		button.secondary{background:#e6eefc;color:var(--accent)}
+		.result{margin-top:18px;padding:16px;border-radius:10px;background:linear-gradient(180deg,rgba(37,99,235,0.06),transparent);font-weight:700}
+		.small{font-size:0.9rem;color:var(--muted)}
+		footer{margin-top:14px;text-align:center;color:var(--muted);font-size:0.85rem}
+		@media (max-width:520px){body{padding:18px}.form-row{flex-direction:column;align-items:stretch}input[type="date"]{width:100%}}
+	</style>
+</head>
+<body>
+	<div class="wrap">
+		<header>
+			<h1>Age Calculator</h1>
+			<div class="small">Calculate your age in years, months & days</div>
+		</header>
+
+		<main class="card" role="main">
+				<form id="ageForm" onsubmit="return false;" aria-label="Age calculator form">
+					<div>
+						<label for="birthdate">Your birthdate</label>
+						<input id="birthdate" name="birthdate" type="date" aria-required="true" max="9999-12-31">
+						<div class="small muted">Choose your birthdate using the picker. If you prefer, type YYYY-MM-DD.</div>
+					</div>
+
+					<div class="form-row" style="margin-top:14px">
+						<button id="calcBtn" type="button">Calculate age</button>
+						<button id="clearBtn" type="button" class="secondary">Clear</button>
+					</div>
+
+					<div id="output" class="result" aria-live="polite" style="display:none"></div>
+				</form>
+
+				<!-- NASA API integration card -->
+				<section id="nasa" style="margin-top:20px">
+					<h2 style="margin:0 0 12px 0;font-size:1.05rem">NASA API Explorer</h2>
+					<div class="small muted" style="margin-bottom:10px">Use the DEMO_KEY or paste your own NASA API key. Choose an endpoint and fetch data.</div>
+
+					<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:end">
+						<div>
+							<label for="apiKey">NASA API Key</label>
+							<input id="apiKey" placeholder="DEMO_KEY or your api key" value="DEMO_KEY" />
+						</div>
+
+						<div>
+							<label for="endpoint">Endpoint</label>
+							<select id="endpoint">
+								<option value="apod">APOD (Astronomy Picture of the Day)</option>
+								<option value="mars-photos">Mars Rover Photos (Curiosity)</option>
+								<option value="custom">Custom full URL</option>
+							</select>
+						</div>
+					</div>
+
+					<div id="params" style="margin-top:12px">
+						<!-- APOD params -->
+						<div data-for="apod">
+							<label for="apodDate">Date (optional)</label>
+							<input id="apodDate" type="date" />
+							<div class="small muted">Leave empty for today's APOD.</div>
+						</div>
+
+						<!-- Mars params -->
+						<div data-for="mars-photos" style="display:none">
+							<label for="sol">Sol (Martian sol) or Earth date</label>
+							<div style="display:flex;gap:8px;align-items:center">
+								<input id="sol" type="number" placeholder="e.g. 1000" min="0" />
+								<input id="earthDate" type="date" placeholder="or earth date" />
+							</div>
+							<div class="small muted">If both provided, sol will be used. Defaults to sol=1000.</div>
+						</div>
+
+						<!-- Custom URL -->
+						<div data-for="custom" style="display:none">
+							<label for="customUrl">Custom API URL</label>
+							<input id="customUrl" placeholder="https://api.nasa.gov/…?api_key=YOUR_KEY&amp;param=value" />
+							<div class="small muted">Provide a full URL (including query). If missing api_key, the key above will be appended.</div>
+						</div>
+					</div>
+
+					<div class="form-row" style="margin-top:12px">
+						<button id="fetchBtn" type="button">Fetch from NASA</button>
+						<button id="clearNasaBtn" type="button" class="secondary">Clear results</button>
+					</div>
+
+					<div id="nasaOutput" class="result" style="display:none;margin-top:12px">
+						<div id="nasaContent"></div>
+						<details style="margin-top:8px"><summary>Raw JSON</summary><pre id="rawJson" style="max-height:300px;overflow:auto;background:#f8fafc;padding:8px;border-radius:6px"></pre></details>
+					</div>
+				</section>
+
+			<footer>
+				Tip: If the date picker isn't available in your browser, enter the date as YYYY-MM-DD.
+			</footer>
+		</main>
+	</div>
+
+	<script>
+		// Calculate age in years, months, days from birthdate (yyyy-mm-dd)
+		const birthInput = document.getElementById('birthdate');
+		const calcBtn = document.getElementById('calcBtn');
+		const clearBtn = document.getElementById('clearBtn');
+		const output = document.getElementById('output');
+
+		function showMessage(html){
+			output.innerHTML = html;
+			output.style.display = html ? 'block' : 'none';
+		}
+
+		function parseDateFromInput(value){
+			// value is expected as YYYY-MM-DD
+			if(!value) return null;
+			const parts = value.split('-').map(Number);
+			if(parts.length !== 3) return null;
+			const [y,m,d] = parts;
+			// months are 1-12
+			if(!y || !m || !d) return null;
+			return new Date(Date.UTC(y, m-1, d));
+		}
+
+		function calculateAge(birthDate, now = new Date()){
+			if(!(birthDate instanceof Date)) return null;
+			// Use local now but ensure birthDate timezone-neutral by using UTC day math
+			const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+			const b = new Date(birthDate.getFullYear(), birthDate.getMonth(), birthDate.getDate());
+			if(b > today) return null;
+
+			let years = today.getFullYear() - b.getFullYear();
+			let months = today.getMonth() - b.getMonth();
+			let days = today.getDate() - b.getDate();
+
+			if(days < 0){
+				// borrow days from previous month
+				const prevMonth = new Date(today.getFullYear(), today.getMonth(), 0); // last day of previous month
+				days += prevMonth.getDate();
+				months -= 1;
+			}
+			if(months < 0){
+				months += 12;
+				years -= 1;
+			}
+			return {years, months, days};
+		}
+
+		function formatAge(a){
+			if(!a) return '';
+			const parts = [];
+			if(a.years) parts.push(a.years + (a.years === 1 ? ' year' : ' years'));
+			if(a.months) parts.push(a.months + (a.months === 1 ? ' month' : ' months'));
+			if(a.days || parts.length === 0) parts.push(a.days + (a.days === 1 ? ' day' : ' days'));
+			return parts.join(', ');
+		}
+
+		function onCalculate(){
+			const val = birthInput.value.trim();
+			if(!val){
+				showMessage('<span style="color:#b91c1c;font-weight:700">Please enter your birthdate.</span>');
+				return;
+			}
+			const bd = parseDateFromInput(val);
+			if(!bd){
+				showMessage('<span style="color:#b91c1c;font-weight:700">Invalid date format. Use YYYY-MM-DD.</span>');
+				return;
+			}
+			const age = calculateAge(bd);
+			if(!age){
+				showMessage('<span style="color:#b91c1c;font-weight:700">Birthdate is in the future. Please enter a valid past date.</span>');
+				return;
+			}
+			const formatted = formatAge(age);
+			showMessage(`<div>You're <span style="color:var(--accent)">${formatted}</span>.</div>`);
+		}
+
+		calcBtn.addEventListener('click', onCalculate);
+		clearBtn.addEventListener('click', ()=>{ birthInput.value=''; showMessage(''); birthInput.focus(); });
+
+		// allow Enter key to submit when focused on the date input
+		birthInput.addEventListener('keydown', (e)=>{ if(e.key === 'Enter'){ onCalculate(); e.preventDefault(); } });
+
+			// ---------- NASA API explorer logic ----------
+			const apiKeyInput = document.getElementById('apiKey');
+			const endpointSelect = document.getElementById('endpoint');
+			const paramsContainer = document.getElementById('params');
+			const fetchBtn = document.getElementById('fetchBtn');
+			const clearNasaBtn = document.getElementById('clearNasaBtn');
+			const nasaOutput = document.getElementById('nasaOutput');
+			const nasaContent = document.getElementById('nasaContent');
+			const rawJson = document.getElementById('rawJson');
+
+			function showNasaResult(html, json){
+				nasaContent.innerHTML = html || '';
+				rawJson.textContent = json ? JSON.stringify(json, null, 2) : '';
+				nasaOutput.style.display = html || json ? 'block' : 'none';
+			}
+
+			function setParamVisibility(){
+				const val = endpointSelect.value;
+				Array.from(paramsContainer.querySelectorAll('[data-for]')).forEach(el=>{
+					el.style.display = el.getAttribute('data-for') === val ? 'block' : 'none';
+				});
+			}
+			endpointSelect.addEventListener('change', setParamVisibility);
+			setParamVisibility();
+
+			function buildUrl(){
+				const key = (apiKeyInput.value || '').trim();
+				const ep = endpointSelect.value;
+				if(ep === 'apod'){
+					const date = document.getElementById('apodDate').value;
+					let url = new URL('https://api.nasa.gov/planetary/apod');
+					if(date) url.searchParams.set('date', date);
+					url.searchParams.set('api_key', key || 'DEMO_KEY');
+					return url.toString();
+				}
+				if(ep === 'mars-photos'){
+					const solVal = document.getElementById('sol').value;
+					const earthDate = document.getElementById('earthDate').value;
+					let url = new URL('https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos');
+					if(solVal) url.searchParams.set('sol', solVal);
+					else if(earthDate) url.searchParams.set('earth_date', earthDate);
+					else url.searchParams.set('sol', '1000');
+					url.searchParams.set('api_key', key || 'DEMO_KEY');
+					return url.toString();
+				}
+				if(ep === 'custom'){
+					const u = (document.getElementById('customUrl').value || '').trim();
+					if(!u) return null;
+					try{
+						const url = new URL(u);
+						if(!url.searchParams.has('api_key') && key) url.searchParams.set('api_key', key);
+						return url.toString();
+					}catch(e){
+						return null;
+					}
+				}
+				return null;
+			}
+
+			async function fetchNasa(){
+				const url = buildUrl();
+				if(!url){
+					showNasaResult('<span style="color:#b91c1c;font-weight:700">Please provide a valid URL or parameters.</span>', null);
+					return;
+				}
+				showNasaResult('<em>Fetching...</em>', null);
+				try{
+					const res = await fetch(url);
+					if(!res.ok){
+						const txt = await res.text();
+						showNasaResult(`<span style="color:#b91c1c;font-weight:700">Request failed: ${res.status} ${res.statusText}</span>`, {status:res.status, body:txt});
+						return;
+					}
+					const data = await res.json();
+					// handle APOD
+					if(endpointSelect.value === 'apod'){
+						let html = '';
+						if(data.media_type === 'image'){
+							html = `<figure style="margin:0"><img src="${data.url}" alt="APOD" style="max-width:100%;border-radius:8px;display:block;margin-bottom:8px"/><figcaption class="small muted">${escapeHtml(data.title || '')}</figcaption></figure><div class="small" style="margin-top:8px">${escapeHtml(data.explanation || '')}</div>`;
+						}else if(data.media_type === 'video'){
+							html = `<div style="aspect-ratio:16/9"><iframe src="${data.url}" frameborder="0" allowfullscreen style="width:100%;height:100%"></iframe></div><div class="small" style="margin-top:8px">${escapeHtml(data.title || '')}</div><div class="small">${escapeHtml(data.explanation || '')}</div>`;
+						}else{
+							html = `<pre>${escapeHtml(JSON.stringify(data, null, 2))}</pre>`;
+						}
+						showNasaResult(html, data);
+						return;
+					}
+
+					// handle Mars photos
+					if(endpointSelect.value === 'mars-photos'){
+						const photos = data.photos || [];
+						if(photos.length === 0){
+							showNasaResult('<div>No photos found for the chosen parameters.</div>', data);
+							return;
+						}
+						const list = photos.slice(0,6).map(p=>`<div style="flex:1 1 30%;min-width:120px"><img src="${p.img_src}" alt="Mars photo" style="width:100%;height:auto;border-radius:8px;display:block"/><div class="small muted">${escapeHtml(p.camera.full_name)} — ${escapeHtml(p.earth_date)}</div></div>`).join('');
+						const html = `<div style="display:flex;gap:8px;flex-wrap:wrap">${list}</div>`;
+						showNasaResult(html, data);
+						return;
+					}
+
+					// fallback: show the data
+					showNasaResult(`<pre>${escapeHtml(JSON.stringify(data, null, 2))}</pre>`, data);
+				}catch(err){
+					showNasaResult(`<span style="color:#b91c1c;font-weight:700">Network or parsing error: ${escapeHtml(err.message || String(err))}</span>`, null);
+				}
+			}
+
+			fetchBtn.addEventListener('click', fetchNasa);
+			clearNasaBtn.addEventListener('click', ()=>{ showNasaResult('', null); });
+
+			function escapeHtml(s){
+				return String(s || '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+			}
+	</script>
+</body>
+</html>
+
