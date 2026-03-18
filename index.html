@@ -542,27 +542,107 @@
 
     <script>
         const celestialData = [
-            { name: 'Sun', frequency: 126.22, color: '#ff8c00', info: 'Solar oscillations' },
-            { name: 'Mercury', frequency: 144.72, color: '#b8b8b8', info: 'Solar wind interactions' },
-            { name: 'Venus', frequency: 221.23, color: '#fdcb6e', info: 'Atmospheric radio emissions' },
-            { name: 'Earth', frequency: 194.18, color: '#74b9ff', info: 'Magnetospheric chorus' },
-            { name: 'Mars', frequency: 144.72, color: '#ff7675', info: 'Wind and atmospheric pressure' },
-            { name: 'Jupiter', frequency: 183.58, color: '#f9ca24', info: 'Radio emissions and auroras' },
-            { name: 'Saturn', frequency: 147.85, color: '#fdcb6e', info: 'Kilometric radiation' },
-            { name: 'Uranus', frequency: 207.36, color: '#81ecec', info: 'Magnetic field oscillations' },
-            { name: 'Neptune', frequency: 211.44, color: '#74b9ff', info: 'Plasma wave emissions' }
+            { 
+                name: 'Sun', 
+                frequency: 126.22, 
+                color: '#ff8c00', 
+                info: 'Solar oscillations',
+                pattern: 'regal',
+                strands: 12,
+                turns: 4,
+                waveStyle: 'majestic'
+            },
+            { 
+                name: 'Mercury', 
+                frequency: 144.72, 
+                color: '#b8b8b8', 
+                info: 'Solar wind interactions',
+                pattern: 'spiral',
+                strands: 3,
+                turns: 5,
+                waveStyle: 'tight'
+            },
+            { 
+                name: 'Venus', 
+                frequency: 221.23, 
+                color: '#fdcb6e', 
+                info: 'Atmospheric radio emissions',
+                pattern: 'weave',
+                strands: 6,
+                turns: 3,
+                waveStyle: 'flowing'
+            },
+            { 
+                name: 'Earth', 
+                frequency: 194.18, 
+                color: '#74b9ff', 
+                info: 'Magnetospheric chorus',
+                pattern: 'orbital',
+                strands: 5,
+                turns: 4,
+                waveStyle: 'orbital'
+            },
+            { 
+                name: 'Mars', 
+                frequency: 144.72, 
+                color: '#ff7675', 
+                info: 'Wind and atmospheric pressure',
+                pattern: 'angular',
+                strands: 4,
+                turns: 6,
+                waveStyle: 'sharp'
+            },
+            { 
+                name: 'Jupiter', 
+                frequency: 183.58, 
+                color: '#f9ca24', 
+                info: 'Radio emissions and auroras',
+                pattern: 'vortex',
+                strands: 12,
+                turns: 4,
+                waveStyle: 'chaotic'
+            },
+            { 
+                name: 'Saturn', 
+                frequency: 147.85, 
+                color: '#fdcb6e', 
+                info: 'Kilometric radiation',
+                pattern: 'rings',
+                strands: 10,
+                turns: 2,
+                waveStyle: 'circular'
+            },
+            { 
+                name: 'Uranus', 
+                frequency: 207.36, 
+                color: '#81ecec', 
+                info: 'Magnetic field oscillations',
+                pattern: 'tilted',
+                strands: 7,
+                turns: 3,
+                waveStyle: 'eccentric'
+            },
+            { 
+                name: 'Neptune', 
+                frequency: 211.44, 
+                color: '#74b9ff', 
+                info: 'Plasma wave emissions',
+                pattern: 'waves',
+                strands: 8,
+                turns: 4,
+                waveStyle: 'ocean'
+            }
         ];
 
-        // Planet positions matching solar system image layout
         const planetPositions = [
-            { x: 160, y: 0 },      // Mercury - right
-            { x: 220, y: -60 },    // Venus - upper right
-            { x: 280, y: 0 },      // Earth - right
-            { x: 210, y: 100 },    // Mars - lower right
-            { x: 380, y: -40 },    // Jupiter - far upper right
-            { x: -320, y: 60 },    // Saturn - left
-            { x: -420, y: 120 },   // Uranus - far left (moved from right)
-            { x: -380, y: -80 }    // Neptune - far left upper
+            { x: 160, y: 0 },
+            { x: 220, y: -60 },
+            { x: 280, y: 0 },
+            { x: 210, y: 100 },
+            { x: 380, y: -40 },
+            { x: -320, y: 60 },
+            { x: -420, y: 120 },
+            { x: -380, y: -80 }
         ];
 
         let canvas, ctx, audioContext;
@@ -587,7 +667,6 @@
 
             setTimeout(() => loadingStatus.style.display = 'none', 3000);
             
-            // Create planets with fixed positions
             planetPositions.forEach((pos, idx) => {
                 const planetIndex = idx + 1;
                 const container = document.createElement('div');
@@ -618,12 +697,18 @@
 
             canvas = document.getElementById('waveCanvas');
             ctx = canvas.getContext('2d');
-            canvas.width = canvas.offsetWidth;
-            canvas.height = canvas.offsetHeight;
+            canvas.width = canvas.offsetWidth * 2;
+            canvas.height = canvas.offsetHeight * 2;
+            canvas.style.width = canvas.offsetWidth / 2 + 'px';
+            canvas.style.height = canvas.offsetHeight / 2 + 'px';
 
             window.addEventListener('resize', () => {
-                canvas.width = canvas.offsetWidth;
-                canvas.height = canvas.offsetHeight;
+                const w = canvas.offsetWidth;
+                const h = canvas.offsetHeight;
+                canvas.width = w * 2;
+                canvas.height = h * 2;
+                canvas.style.width = w + 'px';
+                canvas.style.height = h + 'px';
             });
 
             startVisualization();
@@ -661,9 +746,9 @@
                 oscillator.frequency.value = body.frequency;
                 
                 const lfo = audioContext.createOscillator();
-                lfo.frequency.value = 0.2 + Math.random() * 0.3;
+                lfo.frequency.value = 0.15 + Math.random() * 0.25;
                 const lfoGain = audioContext.createGain();
-                lfoGain.gain.value = 10 + Math.random() * 15;
+                lfoGain.gain.value = 8 + Math.random() * 12;
                 
                 lfo.connect(lfoGain);
                 lfoGain.connect(oscillator.frequency);
@@ -679,12 +764,16 @@
                     name: body.name,
                     frequency: body.frequency,
                     color: body.color,
+                    pattern: body.pattern,
+                    strands: body.strands,
+                    turns: body.turns,
+                    waveStyle: body.waveStyle,
                     oscillator: oscillator,
                     lfo: lfo,
                     analyser: analyser,
                     phase: Math.random() * Math.PI * 2,
-                    rotationSpeed: 0.005 + Math.random() * 0.01,
-                    symmetry: 3 + Math.floor(Math.random() * 5)
+                    rotationSpeed: 0.002 + Math.random() * 0.004,
+                    flowOffset: Math.random() * 100
                 });
 
                 if (index === 0) {
@@ -721,80 +810,380 @@
             }
         }
 
+        function drawPatternForPlanet(sound, idx, time, centerX, centerY) {
+            const dataArray = new Uint8Array(sound.analyser.frequencyBinCount);
+            sound.analyser.getByteTimeDomainData(dataArray);
+
+            ctx.strokeStyle = sound.color;
+            ctx.shadowBlur = 6;
+            ctx.shadowColor = sound.color;
+
+            switch(sound.pattern) {
+                case 'regal':
+                    drawRegalPattern(sound, dataArray, centerX, centerY, idx, time);
+                    break;
+                case 'spiral':
+                    drawSpiralPattern(sound, dataArray, centerX, centerY, idx, time);
+                    break;
+                case 'weave':
+                    drawWeavePattern(sound, dataArray, centerX, centerY, idx, time);
+                    break;
+                case 'orbital':
+                    drawOrbitalPattern(sound, dataArray, centerX, centerY, idx, time);
+                    break;
+                case 'angular':
+                    drawAngularPattern(sound, dataArray, centerX, centerY, idx, time);
+                    break;
+                case 'vortex':
+                    drawVortexPattern(sound, dataArray, centerX, centerY, idx, time);
+                    break;
+                case 'rings':
+                    drawRingsPattern(sound, dataArray, centerX, centerY, idx, time);
+                    break;
+                case 'tilted':
+                    drawTiltedPattern(sound, dataArray, centerX, centerY, idx, time);
+                    break;
+                case 'waves':
+                    drawWavesPattern(sound, dataArray, centerX, centerY, idx, time);
+                    break;
+            }
+        }
+
+        function drawRegalPattern(sound, data, cx, cy, idx, time) {
+            ctx.lineWidth = 1.2;
+            const rays = sound.strands;
+            const baseRadius = 150 + idx * 75;
+            
+            // Organic flowing rays - Sun's warm expansive energy
+            for (let ray = 0; ray < rays; ray++) {
+                ctx.globalAlpha = 0.48 - ray * 0.03;
+                ctx.beginPath();
+                
+                for (let i = 0; i < data.length; i += 2) {
+                    const v = (data[i] / 128.0 - 1);
+                    const t = i / data.length;
+                    const angle = sound.phase + t * Math.PI * 2;
+                    
+                    // Warm, expansive solar flows - slower, broader waves
+                    const solarFlow1 = Math.sin(t * 8 + time * 1.5 + ray * 0.6) * 55;
+                    const solarFlow2 = Math.cos(t * 12 - time * 1.0 + ray * 0.8) * 42;
+                    const solarFlow3 = Math.sin(t * 5 + time * 0.7 + ray * 0.4) * 32;
+                    
+                    const radius = baseRadius + v * 80 + solarFlow1 + solarFlow2 + solarFlow3;
+                    
+                    const px = cx + Math.cos(angle) * radius;
+                    const py = cy + Math.sin(angle) * radius;
+                    
+                    if (i === 0) ctx.moveTo(px, py);
+                    else ctx.lineTo(px, py);
+                }
+                ctx.closePath();
+                ctx.stroke();
+            }
+            
+            ctx.globalAlpha = 1;
+        }
+
+        function drawSpiralPattern(sound, data, cx, cy, idx, time) {
+            ctx.lineWidth = 1.3;
+            const spirals = sound.strands;
+            
+            for (let spiral = 0; spiral < spirals; spiral++) {
+                ctx.globalAlpha = 0.6 - spiral * 0.05;
+                ctx.beginPath();
+                
+                const direction = spiral % 2 === 0 ? 1 : -1;
+                const spiralOffset = (spiral / spirals) * Math.PI * 0.5;
+                
+                for (let i = 0; i < data.length; i += 2) {
+                    const v = (data[i] / 128.0 - 1);
+                    const t = i / data.length;
+                    
+                    const angle = sound.phase + spiralOffset + direction * t * Math.PI * sound.turns * 2;
+                    const baseRadius = 120 + idx * 70 + t * 200;
+                    const tightWave = Math.sin(t * 20 + time * 2) * 15;
+                    const radius = baseRadius + v * 80 + tightWave;
+                    
+                    const px = cx + Math.cos(angle) * radius;
+                    const py = cy + Math.sin(angle) * radius;
+                    
+                    if (i === 0) ctx.moveTo(px, py);
+                    else ctx.lineTo(px, py);
+                }
+                ctx.stroke();
+            }
+            ctx.globalAlpha = 1;
+        }
+
+        function drawWeavePattern(sound, data, cx, cy, idx, time) {
+            ctx.lineWidth = 1.2;
+            const strands = sound.strands;
+            const baseRadius = 160 + idx * 75;
+            
+            for (let strand = 0; strand < strands; strand++) {
+                ctx.globalAlpha = 0.45 + (strand % 2) * 0.1;
+                ctx.beginPath();
+                
+                const strandOffset = (strand / strands) * Math.PI * 2;
+                const direction = strand % 2 === 0 ? 1 : -1;
+                
+                for (let i = 0; i < data.length; i += 2) {
+                    const v = (data[i] / 128.0 - 1) * 0.6;
+                    const t = i / data.length;
+                    
+                    const angle = sound.phase + strandOffset + direction * t * Math.PI * sound.turns;
+                    
+                    const weave1 = Math.sin(t * 8 + time + strand * 0.8) * 50;
+                    const weave2 = Math.cos(t * 12 - time * 0.7 + strand) * 35;
+                    
+                    const radius = baseRadius + v * 90 + weave1 + weave2;
+                    
+                    const px = cx + Math.cos(angle) * radius;
+                    const py = cy + Math.sin(angle) * radius;
+                    
+                    if (i === 0) ctx.moveTo(px, py);
+                    else ctx.lineTo(px, py);
+                }
+                ctx.stroke();
+            }
+            ctx.globalAlpha = 1;
+        }
+
+        function drawOrbitalPattern(sound, data, cx, cy, idx, time) {
+            ctx.lineWidth = 1.3;
+            const orbits = sound.strands;
+            
+            for (let orbit = 0; orbit < orbits; orbit++) {
+                ctx.globalAlpha = 0.5;
+                ctx.beginPath();
+                
+                const orbitPhase = sound.phase + (orbit / orbits) * Math.PI * 2;
+                
+                for (let i = 0; i < data.length; i += 2) {
+                    const v = (data[i] / 128.0 - 1);
+                    const t = i / data.length;
+                    
+                    const angle = orbitPhase + t * Math.PI * 2;
+                    const eccentric = 1 + Math.sin(angle * sound.turns + time) * 0.4;
+                    
+                    const baseRadius = 140 + idx * 70 + orbit * 35;
+                    const orbitWave = Math.sin(t * 10 + time * 1.2 + orbit) * 25;
+                    const radius = baseRadius * eccentric + v * 70 + orbitWave;
+                    
+                    const px = cx + Math.cos(angle) * radius;
+                    const py = cy + Math.sin(angle) * radius;
+                    
+                    if (i === 0) ctx.moveTo(px, py);
+                    else ctx.lineTo(px, py);
+                }
+                ctx.closePath();
+                ctx.stroke();
+            }
+            ctx.globalAlpha = 1;
+        }
+
+        function drawAngularPattern(sound, data, cx, cy, idx, time) {
+            ctx.lineWidth = 1.4;
+            const points = sound.strands;
+            const layers = 3;
+            
+            for (let layer = 0; layer < layers; layer++) {
+                ctx.globalAlpha = 0.55 - layer * 0.1;
+                ctx.beginPath();
+                
+                for (let point = 0; point <= points; point++) {
+                    const angle = sound.phase + (point / points) * Math.PI * 2 + layer * 0.3;
+                    const sampleIdx = Math.floor((point / points) * data.length);
+                    const v = (data[sampleIdx] / 128.0 - 1);
+                    
+                    const baseRadius = 155 + idx * 75 + layer * 50;
+                    const sharpWave = Math.sin(point * sound.turns + time * 1.5) * 40;
+                    const radius = baseRadius + v * 85 + sharpWave;
+                    
+                    const px = cx + Math.cos(angle) * radius;
+                    const py = cy + Math.sin(angle) * radius;
+                    
+                    if (point === 0) ctx.moveTo(px, py);
+                    else ctx.lineTo(px, py);
+                }
+                ctx.closePath();
+                ctx.stroke();
+            }
+            ctx.globalAlpha = 1;
+        }
+
+        function drawVortexPattern(sound, data, cx, cy, idx, time) {
+            ctx.lineWidth = 1.0;
+            const arms = sound.strands;
+            
+            for (let arm = 0; arm < arms; arm++) {
+                ctx.globalAlpha = 0.4;
+                ctx.beginPath();
+                
+                const armOffset = (arm / arms) * Math.PI * 2;
+                
+                for (let i = 0; i < data.length; i += 2) {
+                    const v = (data[i] / 128.0 - 1);
+                    const t = i / data.length;
+                    
+                    const spiralAngle = sound.phase + armOffset + t * Math.PI * sound.turns * 1.5;
+                    const baseRadius = 100 + t * 250;
+                    
+                    const chaos1 = Math.sin(t * 12 + time * 1.5 + arm * 0.5) * 30;
+                    const chaos2 = Math.cos(t * 8 - time + arm * 0.8) * 20;
+                    
+                    const radius = baseRadius + v * 90 + chaos1 + chaos2;
+                    
+                    const px = cx + Math.cos(spiralAngle) * radius;
+                    const py = cy + Math.sin(spiralAngle) * radius;
+                    
+                    if (i === 0) ctx.moveTo(px, py);
+                    else ctx.lineTo(px, py);
+                }
+                ctx.stroke();
+            }
+            ctx.globalAlpha = 1;
+        }
+
+        function drawRingsPattern(sound, data, cx, cy, idx, time) {
+            ctx.lineWidth = 1.2;
+            const rings = sound.strands;
+            
+            for (let ring = 0; ring < rings; ring++) {
+                ctx.globalAlpha = 0.45 + (ring % 2) * 0.15;
+                ctx.beginPath();
+                
+                for (let i = 0; i < data.length; i += 2) {
+                    const v = (data[i] / 128.0 - 1);
+                    const t = i / data.length;
+                    const angle = sound.phase + t * Math.PI * 2;
+                    
+                    const baseRadius = 130 + idx * 70 + ring * 30;
+                    const ringWave = Math.sin(t * 25 + time * 1.5 + ring) * 20;
+                    const circularFlow = Math.cos(t * 15 - time + ring * 0.5) * 15;
+                    
+                    const radius = baseRadius + v * 70 + ringWave + circularFlow;
+                    
+                    const px = cx + Math.cos(angle) * radius;
+                    const py = cy + Math.sin(angle) * radius;
+                    
+                    if (i === 0) ctx.moveTo(px, py);
+                    else ctx.lineTo(px, py);
+                }
+                ctx.closePath();
+                ctx.stroke();
+            }
+            ctx.globalAlpha = 1;
+        }
+
+        function drawTiltedPattern(sound, data, cx, cy, idx, time) {
+            ctx.lineWidth = 1.3;
+            const layers = sound.strands;
+            const tiltAngle = Math.PI / 3;
+            
+            for (let layer = 0; layer < layers; layer++) {
+                ctx.globalAlpha = 0.5 - layer * 0.04;
+                ctx.beginPath();
+                
+                for (let i = 0; i < data.length; i += 2) {
+                    const v = (data[i] / 128.0 - 1);
+                    const t = i / data.length;
+                    const angle = sound.phase + t * Math.PI * 2;
+                    
+                    const baseRadius = 145 + idx * 70 + layer * 30;
+                    const tiltEffect = Math.cos(angle + tiltAngle) * 45;
+                    const eccentricWave = Math.sin(t * 15 + time + layer * 0.7) * 28;
+                    
+                    const radius = baseRadius + v * 75 + tiltEffect + eccentricWave;
+                    
+                    const px = cx + Math.cos(angle) * radius;
+                    const py = cy + Math.sin(angle) * radius * 0.65;
+                    
+                    if (i === 0) ctx.moveTo(px, py);
+                    else ctx.lineTo(px, py);
+                }
+                ctx.closePath();
+                ctx.stroke();
+            }
+            ctx.globalAlpha = 1;
+        }
+
+        function drawWavesPattern(sound, data, cx, cy, idx, time) {
+            ctx.lineWidth = 1.2;
+            const waves = sound.strands;
+            
+            for (let wave = 0; wave < waves; wave++) {
+                ctx.globalAlpha = 0.48 - wave * 0.03;
+                ctx.beginPath();
+                
+                for (let i = 0; i < data.length; i += 2) {
+                    const v = (data[i] / 128.0 - 1);
+                    const t = i / data.length;
+                    const angle = sound.phase + t * Math.PI * 2;
+                    
+                    const baseRadius = 150 + idx * 75 + wave * 25;
+                    
+                    // Match Sun's exact wave structure with Neptune's mystical variations
+                    const wave1 = Math.sin(t * 10 + time * 1.8 + wave * 0.6) * 45;
+                    const wave2 = Math.cos(t * 15 - time * 1.2 + wave * 0.9) * 35;
+                    const wave3 = Math.sin(t * 7 + time * 0.9 + wave * 0.4) * 25;
+                    
+                    const radius = baseRadius + v * 80 + wave1 + wave2 + wave3;
+                    
+                    const px = cx + Math.cos(angle) * radius;
+                    const py = cy + Math.sin(angle) * radius;
+                    
+                    if (i === 0) ctx.moveTo(px, py);
+                    else ctx.lineTo(px, py);
+                }
+                ctx.closePath();
+                ctx.stroke();
+            }
+            ctx.globalAlpha = 1;
+        }
+
         function startVisualization() {
             function animate() {
                 if (!isPaused) {
-                    ctx.fillStyle = 'rgba(10, 10, 20, 0.03)';
+                    ctx.fillStyle = 'rgba(10, 10, 20, 0.06)';
                     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+                    const time = Date.now() * 0.001;
+                    const centerX = canvas.width / 2;
+                    const centerY = canvas.height / 2;
+
                     activeSounds.forEach((sound, idx) => {
-                        const dataArray = new Uint8Array(sound.analyser.frequencyBinCount);
-                        sound.analyser.getByteTimeDomainData(dataArray);
-
-                        const time = Date.now() * 0.001;
-
-                        ctx.strokeStyle = sound.color;
-                        ctx.lineWidth = 1.5;
-                        ctx.shadowBlur = 20;
-                        ctx.shadowColor = sound.color;
-                        ctx.globalAlpha = 0.8;
-
                         if (geometricMode) {
-                            const centerX = canvas.width / 2;
-                            const centerY = canvas.height / 2;
-                            
-                            // Create multiple symmetrical patterns like the reference image
-                            for (let sym = 0; sym < sound.symmetry; sym++) {
-                                ctx.beginPath();
-                                const baseAngle = (sym / sound.symmetry) * Math.PI * 2;
-                                
-                                for (let i = 0; i < dataArray.length; i += 2) {
-                                    const v = (dataArray[i] / 128.0 - 1);
-                                    const t = i / dataArray.length;
-                                    
-                                    // Create organic, flowing shapes
-                                    const angle = baseAngle + t * Math.PI * 4 + sound.phase;
-                                    const radius = 80 + idx * 40 + v * 60;
-                                    
-                                    // Add organic movement
-                                    const wobble = Math.sin(t * 8 + time + idx) * 15;
-                                    const r = radius + wobble;
-                                    
-                                    const px = centerX + Math.cos(angle) * r;
-                                    const py = centerY + Math.sin(angle) * r;
-
-                                    if (i === 0) {
-                                        ctx.moveTo(px, py);
-                                    } else {
-                                        ctx.lineTo(px, py);
-                                    }
-                                }
-                                ctx.closePath();
-                                ctx.stroke();
-                            }
+                            drawPatternForPlanet(sound, idx, time, centerX, centerY);
                         } else {
+                            const dataArray = new Uint8Array(sound.analyser.frequencyBinCount);
+                            sound.analyser.getByteTimeDomainData(dataArray);
+
+                            ctx.strokeStyle = sound.color;
+                            ctx.lineWidth = 2;
+                            ctx.shadowBlur = 15;
+                            ctx.shadowColor = sound.color;
+                            ctx.globalAlpha = 0.8;
+
                             ctx.beginPath();
                             const sliceWidth = canvas.width / dataArray.length;
                             let x = 0;
                             
                             for (let i = 0; i < dataArray.length; i++) {
                                 const v = dataArray[i] / 128.0;
-                                const organicWave = Math.sin((i * 0.02 + time) * (1 + idx * 0.3)) * 20;
-                                const y = (v * canvas.height / 3) + (idx * 80) + organicWave;
+                                const organicWave = Math.sin((i * 0.02 + time) * (1 + idx * 0.3)) * 40;
+                                const y = (v * canvas.height / 3) + (idx * 160) + organicWave;
 
-                                if (i === 0) {
-                                    ctx.moveTo(x, y);
-                                } else {
-                                    ctx.lineTo(x, y);
-                                }
+                                if (i === 0) ctx.moveTo(x, y);
+                                else ctx.lineTo(x, y);
 
                                 x += sliceWidth;
                             }
                             ctx.stroke();
+                            ctx.globalAlpha = 1;
                         }
 
                         ctx.shadowBlur = 0;
-                        ctx.globalAlpha = 1;
                         sound.phase += sound.rotationSpeed;
                     });
                 }
@@ -842,12 +1231,8 @@
 
         function clearWaves() {
             activeSounds.forEach(sound => {
-                if (sound.oscillator) {
-                    sound.oscillator.stop();
-                }
-                if (sound.lfo) {
-                    sound.lfo.stop();
-                }
+                if (sound.oscillator) sound.oscillator.stop();
+                if (sound.lfo) sound.lfo.stop();
             });
             
             activeSounds = [];
@@ -883,11 +1268,9 @@
             const planetNames = activeSounds.map(s => s.name.toLowerCase()).join(', ');
             
             try {
-                // Using Aztro API for daily horoscope data
                 const today = new Date();
-                const day = 'today'; // Options: today, tomorrow, yesterday
+                const day = 'today';
                 
-                // Get a random zodiac sign based on active planets
                 const zodiacSigns = ['aries', 'taurus', 'gemini', 'cancer', 'leo', 'virgo', 
                                     'libra', 'scorpio', 'sagittarius', 'capricorn', 'aquarius', 'pisces'];
                 const randomSign = zodiacSigns[Math.floor(Math.random() * zodiacSigns.length)];
@@ -899,17 +1282,14 @@
                 const data = await response.json();
                 
                 if (data.description) {
-                    // Create a cosmic interpretation combining planets and horoscope
                     const interpretation = createCosmicInterpretation(activeSounds, data);
                     descBox.innerHTML = `🌟 <strong>Cosmic Alignment</strong><br><br>${interpretation}`;
                 } else {
-                    // Fallback to local cosmic interpretation
                     const fallbackInterpretation = createLocalInterpretation(activeSounds);
                     descBox.innerHTML = `🌟 <strong>Planetary Resonance</strong><br><br>${fallbackInterpretation}`;
                 }
             } catch (error) {
                 console.error('API Error:', error);
-                // Fallback to local cosmic interpretation
                 const fallbackInterpretation = createLocalInterpretation(activeSounds);
                 descBox.innerHTML = `🌟 <strong>Planetary Resonance</strong><br><br>${fallbackInterpretation}`;
             }
